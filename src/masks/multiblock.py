@@ -8,7 +8,13 @@ logger = getLogger()
 
 
 class MaskCollator(object):
+    """
+    Деф блочный генератор масок,
+    создает nenc (по дефолту 1) контекстных масок на изображение
+    и создает npred (по дефолту 2) масок прямоугольников таргетов
 
+    маски если что все являются просто индексами патчей
+    """
     def __init__(
         self,
         input_size=(224, 224),
@@ -156,5 +162,9 @@ class MaskCollator(object):
         # --
         collated_masks_enc = [[cm[:min_keep_enc] for cm in cm_list] for cm_list in collated_masks_enc]
         collated_masks_enc = torch.utils.data.default_collate(collated_masks_enc)
+        
+        result_dict = {'images': collated_batch,
+                       'masks_enc': collated_masks_enc,
+                       'collated_masks_pred': collated_masks_pred}
 
-        return collated_batch, collated_masks_enc, collated_masks_pred
+        return result_dict

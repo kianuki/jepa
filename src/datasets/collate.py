@@ -1,6 +1,5 @@
 import torch
 
-
 def collate_fn(dataset_items: list[dict]):
     """
     Collate and pad fields in the dataset items.
