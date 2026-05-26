@@ -1,7 +1,8 @@
 train:
   _target_: src.datasets.Cifar100 # we can concat datasets if we want to
-  part: train
+  split: train
   
 test:
   _target_: src.datasets.Cifar100
-  part: test
+  split: test
+  

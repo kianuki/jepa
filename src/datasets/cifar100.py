@@ -11,7 +11,7 @@ from src.utils.io_utils import ROOT_PATH
 
 class Cifar100(BaseDataset):
     def __init__(self, split, *args, **kwargs):
-        self._data_dir = ROOT_PATH / "dataset_cifar100"
+        self._data_dir = ROOT_PATH / "data" / "dataset_cifar100"
         self._regex = re.compile("[^a-z ]")
         self._dataset = load_dataset(
             "uoft-cs/cifar100",
