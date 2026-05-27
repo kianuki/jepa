@@ -3,7 +3,7 @@ from torch import Tensor
 from torch import nn
 
 
-class JEPALoss(nn.Module):
+class JEPALoss2(nn.Module):
     def __init__(self, act_lambda=0.01):
         super().__init__()
 
