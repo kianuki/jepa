@@ -36,10 +36,16 @@ class Cifar100(BaseDataset):
                 if not img_path.exists():
                     entry["img"].save(img_path)
                 
-                index.append({
-                    "path": str(img_path.absolute()),
-                    "fine_label": entry["fine_label"],
-                })
+                if set == 100:
+                    index.append({
+                        "path": str(img_path.absolute()),
+                        "fine_label": entry["fine_label"],
+                    })
+                else:
+                    index.append({
+                        "path": str(img_path.absolute()),
+                        "fine_label": entry["label"],
+                    })
             
             with index_path.open("w") as f:
                 json.dump(index, f, indent=2)
