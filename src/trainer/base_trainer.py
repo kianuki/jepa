@@ -73,6 +73,9 @@ class BaseTrainer:
         self.batch_transforms = batch_transforms
 
         # define dataloaders
+        self.linear_probe_dataloader = dataloaders["train"]
+        self.n_epoch_probe = config.trainer.get("n_epoch_probe", 10)
+
         self.train_dataloader = dataloaders["train"]
         if epoch_len is None:
             # epoch-based training
@@ -128,6 +131,10 @@ class BaseTrainer:
             *[m.name for m in self.metrics["inference"]],
             writer=self.writer,
         )
+
+        for met in self.metrics["inference"]:
+            if hasattr(met, "set_encoder"):
+                met.set_encoder(self.model.context_encoder, self.device)
 
         # define checkpoint dir and init everything if required
 
@@ -209,6 +216,7 @@ class BaseTrainer:
                 batch = self.process_batch(
                     batch,
                     metrics=self.train_metrics,
+                    epoch=epoch
                 )
             except torch.cuda.OutOfMemoryError as e:
                 if self.skip_oom:
@@ -242,6 +250,12 @@ class BaseTrainer:
 
         logs = last_train_metrics
 
+        # train linear probe
+        if epoch % self.n_epoch_probe == 0:
+            for met in self.metrics["inference"]:
+                if hasattr(met, "train_probe"):
+                    met.train_probe(self.linear_probe_dataloader, self.device)
+
         # Run val/test
         for part, dataloader in self.evaluation_dataloaders.items():
             val_logs = self._evaluation_epoch(epoch, part, dataloader)
@@ -272,6 +286,7 @@ class BaseTrainer:
                 batch = self.process_batch(
                     batch,
                     metrics=self.evaluation_metrics,
+                    epoch=epoch
                 )
             self.writer.set_step(epoch * self.epoch_len, part)
             self._log_scalars(self.evaluation_metrics)

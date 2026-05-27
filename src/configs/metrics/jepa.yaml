@@ -13,3 +13,8 @@ inference:
   - _target_: src.metrics.jepa.JEPAMetric
     metric_type: mse
     name: "MSE"
+  - _target_: src.metrics.linear_probe.LinearProbeMetric
+    embed_dim: 16
+    num_classes: 100
+    probe_epochs: 2
+    name: "LinearProbe"
