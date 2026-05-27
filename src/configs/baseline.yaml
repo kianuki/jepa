@@ -6,7 +6,6 @@ defaults:
   - dataloader: example
   - loss_function: jepa
   - transforms: example
-  - _self_
 optimizer:
   _target_: torch.optim.Adam
   lr: 3e-4

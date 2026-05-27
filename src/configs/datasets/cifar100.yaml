@@ -5,4 +5,3 @@ train:
 test:
   _target_: src.datasets.Cifar100
   split: test
-  

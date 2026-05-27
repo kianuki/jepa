@@ -7,17 +7,20 @@ from tqdm import tqdm
 from datasets import load_dataset
 from src.datasets.base_dataset import BaseDataset
 from src.utils.io_utils import ROOT_PATH
+from dotenv import load_dotenv
 
+load_dotenv()
 
 class Cifar100(BaseDataset):
-    def __init__(self, split, set=100, *args, **kwargs):
-        self._data_dir = ROOT_PATH / "data" / f"dataset_cifar{set}"
+    def __init__(self, split, n_classes=100, *args, **kwargs):
+        self._data_dir = ROOT_PATH / "data" / f"dataset_cifar{n_classes}"
         self._regex = re.compile("[^a-z ]")
         self._dataset = load_dataset(
-            f"uoft-cs/cifar{set}",
+            f"uoft-cs/cifar{n_classes}",
             cache_dir=self._data_dir,
             split=split,
         )
+        self.n_classes = n_classes
         index = self._get_or_load_index(split)
         super().__init__(index, *args, **kwargs)
 
@@ -36,7 +39,7 @@ class Cifar100(BaseDataset):
                 if not img_path.exists():
                     entry["img"].save(img_path)
                 
-                if set == 100:
+                if self.n_classes == 100:
                     index.append({
                         "path": str(img_path.absolute()),
                         "fine_label": entry["fine_label"],
