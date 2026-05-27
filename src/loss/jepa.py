@@ -14,13 +14,12 @@ class JEPALoss(nn.Module):
         super().__init__()
         self.normalize_targets = normalize_targets
         self.act_lambda = act_lambda
-        self.mse = nn.MSELoss()
 
     def forward(self, predictions, targets, act_loss=None, **batch):
         if self.normalize_targets:
             targets = F.layer_norm(targets, (targets.size(-1),))
 
-        loss = self.mse(predictions, targets)
+        loss = F.smooth_l1_loss(predictions, targets)
         result = {"loss": loss}
 
         if act_loss is not None:

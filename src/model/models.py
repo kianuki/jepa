@@ -272,10 +272,16 @@ class IJEPAWrapper(nn.Module):
         if masks_pred is None:
             raise ValueError("IJEPAWrapper requires target masks.")
 
+        masks_enc_list = masks_enc if isinstance(masks_enc, list) else [masks_enc]
         context_embeddings = self.context_encoder(image, masks=masks_enc)
 
         with torch.no_grad():
             target_embeddings = self.target_encoder(image, masks=masks_pred)
+            target_embeddings = repeat_interleave_batch(
+                target_embeddings,
+                image.size(0),
+                repeat=len(masks_enc_list),
+            )
 
         predictions = self.predictor(
             context_embeddings,

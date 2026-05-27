@@ -7,6 +7,8 @@ class LinearProbeMetric(BaseMetric):
     def __init__(self, embed_dim, num_classes=100, probe_epochs=10, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.embed_dim = embed_dim
+        self.num_classes = num_classes
         self.probe_epochs = probe_epochs
         self.classifier = nn.Linear(embed_dim, num_classes)
         self._is_trained = False
@@ -17,6 +19,10 @@ class LinearProbeMetric(BaseMetric):
         self.classifier = self.classifier.to(device)
 
     def train_probe(self, train_loader, device):
+        self.classifier = nn.Linear(self.embed_dim, self.num_classes).to(device)
+        self.classifier.train()
+        self._is_trained = False
+
         optimizer = torch.optim.Adam(self.classifier.parameters(), lr=1e-3)
         criterion = nn.CrossEntropyLoss()
 
