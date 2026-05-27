@@ -64,5 +64,13 @@ class MaskCollator(object):
 
         collated_masks_pred = torch.utils.data.default_collate(collated_masks_pred)
         collated_masks_enc = torch.utils.data.default_collate(collated_masks_enc)
+                
+        result_mask_dict = {'masks_enc': collated_masks_enc,
+                       'collated_masks_pred': collated_masks_pred}
+        
+        result_dict = collated_batch | result_mask_dict
 
-        return collated_batch, collated_masks_enc, collated_masks_pred
+        for key, value in result_dict:
+            print(f"{key} dim: {value.shape}")
+
+        return result_dict

@@ -1,9 +1,10 @@
 defaults:
-  - model: baseline
+  - model: dbg_ijepa
   - writer: wandb
   - metrics: example
   - datasets: cifar100
   - dataloader: example
+  - loss_function: jepa
   - transforms: example
   - _self_
 optimizer:
@@ -13,8 +14,6 @@ lr_scheduler:
   _target_: torch.optim.lr_scheduler.StepLR
   gamma: 0.9
   step_size: ${trainer.epoch_len}
-loss_function:
-  _target_: src.loss.ExampleLoss
 trainer:
   log_step: 50
   n_epochs: 100

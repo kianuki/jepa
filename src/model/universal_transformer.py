@@ -4,6 +4,7 @@ import torch
 from layers import Block, get_2d_sincos_pos_embed
 from utils import trunc_normal_
 
+
 class UniversalTransformerBlock(nn.Module):
     def __init__(self, num_patches, predictor_dim, encoder_dim, num_heads, p_dropout=0.0, num_steps=4, time_emb=False, act=False, max_steps=None, epsilon=None):
         """
