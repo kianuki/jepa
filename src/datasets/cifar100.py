@@ -10,11 +10,11 @@ from src.utils.io_utils import ROOT_PATH
 
 
 class Cifar100(BaseDataset):
-    def __init__(self, split, *args, **kwargs):
-        self._data_dir = ROOT_PATH / "data" / "dataset_cifar100"
+    def __init__(self, split, set=100, *args, **kwargs):
+        self._data_dir = ROOT_PATH / "data" / f"dataset_cifar{set}"
         self._regex = re.compile("[^a-z ]")
         self._dataset = load_dataset(
-            "uoft-cs/cifar100",
+            f"uoft-cs/cifar{set}",
             cache_dir=self._data_dir,
             split=split,
         )
