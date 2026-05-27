@@ -1,15 +1,15 @@
 train:
-  - _target_: src.metrics.JEPAMetric
+  - _target_: src.metrics.jepa.JEPAMetric
     metric_type: cosine
     name: "TRAIN_CosineSimilarity"
-  - _target_: src.metrics.JEPAMetric
+  - _target_: src.metrics.jepa.JEPAMetric
     metric_type: mse
     name: "TRAIN_MSE"
 
 inference:
-  - _target_: src.metrics.JEPAMetric
+  - _target_: src.metrics.jepa.JEPAMetric
     metric_type: cosine
     name: "CosineSimilarity"
-  - _target_: src.metrics.JEPAMetric
+  - _target_: src.metrics.jepa.JEPAMetric
     metric_type: mse
     name: "MSE"

@@ -1,2 +1,2 @@
-_target_: src.loss.JEPALoss
+_target_: src.loss.jepa.JEPALoss
 normalize_targets: True
