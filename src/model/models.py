@@ -118,7 +118,9 @@ class VisionTransformerPredictor(nn.Module):
         x = x[:, N_ctxt:]
         x = self.predictor_proj(x)
 
-        return x
+        return {
+            "predictions": x
+        }
 
 
 class VisionTransformer(nn.Module):
@@ -281,16 +283,9 @@ class IJEPAWrapper(nn.Module):
             masks=masks_pred,
         )
 
-        outputs = {
-            "predictions": predictions,
-            "targets": target_embeddings.detach(),
-        }
+        predictions["targets"] = target_embeddings.detach()
 
-        if isinstance(predictions, tuple):
-            outputs["predictions"] = predictions[0]
-            outputs["act_loss"] = predictions[1]
-
-        return outputs
+        return predictions
 
     @torch.no_grad()
     def update_target_encoder(self):

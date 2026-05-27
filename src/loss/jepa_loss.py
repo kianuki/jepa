@@ -12,7 +12,7 @@ class JEPALoss2(nn.Module):
 
     def forward(
         self, pred_target_embeddings, act_loss, target_embeddings, **batch
-    ) -> Tensor:
+    ):
 
         loss = self.mse(pred_target_embeddings, target_embeddings)
         loss += self.act_lambda * act_loss

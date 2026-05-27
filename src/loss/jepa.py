@@ -10,19 +10,22 @@ class JEPALoss(nn.Module):
     and optimizes Smooth L1 between predictor outputs and target embeddings.
     """
 
-    def __init__(self, normalize_targets=True):
+    def __init__(self, act_lambda=0.2, normalize_targets=True):
         super().__init__()
         self.normalize_targets = normalize_targets
+        self.act_lambda = act_lambda
+        self.mse = nn.MSELoss()
 
     def forward(self, predictions, targets, act_loss=None, **batch):
         if self.normalize_targets:
             targets = F.layer_norm(targets, (targets.size(-1),))
 
-        loss = F.smooth_l1_loss(predictions, targets)
+        loss = self.mse(predictions, targets)
         result = {"loss": loss}
 
         if act_loss is not None:
             result["act_loss"] = act_loss
-            result["loss"] = result["loss"] + act_loss
+            result["mse_loss"] = loss
+            result["loss"] = result["loss"] + act_loss * self.act_lambda
 
         return result
