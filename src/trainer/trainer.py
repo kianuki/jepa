@@ -53,7 +53,7 @@ class Trainer(BaseTrainer):
             self._clip_grad_norm()
             self.optimizer.step()
             if self.lr_scheduler is not None:
-                self.lr_scheduler.step()
+                self.lr_scheduler.step(self.global_step)
             self.model.update_target_encoder()
 
         # update metrics for each loss (in case of multiple losses)
@@ -80,6 +80,7 @@ class Trainer(BaseTrainer):
             mode (str): train or inference. Defines which logging
                 rules to apply.
         """
+        self.global_step += 1
         # method to log data from you batch
         # such as audio, text or images, for example
 

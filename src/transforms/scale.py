@@ -18,6 +18,6 @@ class RandomScale1D(nn.Module):
         Returns:
             x (Tensor): scaled tensor.
         """
-        scale = torch.randn(1)
-        x = scale * x
+        # scale = torch.randn(1)
+        # x = scale * x
         return x

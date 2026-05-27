@@ -2,5 +2,21 @@ train:
   image: # name of the tensor on which we apply transform
     _target_: torchvision.transforms.v2.Compose
     transforms:
-      - _target_: src.transforms.RandomScale1D
-inference: null
+      - _target_: torchvision.transforms.v2.RandomHorizontalFlip
+        p: 0.5
+      - _target_: torchvision.transforms.v2.ColorJitter
+        brightness: 0.4
+        contrast: 0.4
+        saturation: 0.4
+        hue: 0.1
+      - _target_: torchvision.transforms.v2.Normalize
+        mean: [0.4914, 0.4822, 0.4465]
+        std: [0.2023, 0.1994, 0.2010]
+
+inference:
+  image: # name of the tensor on which we apply transform
+    _target_: torchvision.transforms.v2.Compose
+    transforms:
+      - _target_: torchvision.transforms.v2.Normalize
+        mean: [0.4914, 0.4822, 0.4465]
+        std: [0.2023, 0.1994, 0.2010]

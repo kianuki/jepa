@@ -55,6 +55,9 @@ class BaseTrainer:
                 should be applied on the whole batch. Depend on the
                 tensor name.
         """
+
+        self.global_step = 0
+
         self.is_train = True
 
         self.config = config
@@ -241,8 +244,9 @@ class BaseTrainer:
                         epoch, self._progress(batch_idx), batch["loss"].item()
                     )
                 )
+                current_lr = self.optimizer.param_groups[0]["lr"]
                 self.writer.add_scalar(
-                    "learning rate", self.lr_scheduler.get_last_lr()[0]
+                    "learning rate", current_lr
                 )
                 self._log_scalars(self.train_metrics)
                 self._log_batch(batch_idx, batch)

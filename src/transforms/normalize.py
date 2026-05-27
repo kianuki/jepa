@@ -26,5 +26,5 @@ class Normalize1D(nn.Module):
         Returns:
             x (Tensor): normalized tensor.
         """
-        x = (x - self.mean) / self.std
+        # x = (x - self.mean) / self.std
         return x

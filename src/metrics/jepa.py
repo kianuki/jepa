@@ -14,5 +14,9 @@ class JEPAMetric(BaseMetric):
 
         if self.metric_type == "mse":
             return F.mse_loss(predictions, targets).item()
+        
+        if self.metric_type == "target_std":
+            target_std = targets.std(dim=0).mean().item()
+            return target_std
 
         raise ValueError(f"Unknown JEPA metric type: {self.metric_type}")

@@ -1,9 +1,19 @@
 _target_: torch.utils.data.DataLoader
-batch_size: 96
-num_workers: 0
+batch_size: 64
+num_workers: 3
 pin_memory: True
 collate_fn:
-  _target_: src.masks.MaskCollatorRandom
-  ratio: [0.2, 0.4]
+#  _target_: src.masks.MaskCollatorRandom
+#  ratio: [0.2, 0.4]
+#  input_size: 32
+#  patch_size: 4
+  _target_: src.masks.MaskCollatorMultiBlock
   input_size: 32
   patch_size: 4
+  enc_mask_scale: [0.4, 0.7]
+  pred_mask_scale: [0.15, 0.3]
+  aspect_ratio: [0.75, 1.5]
+  nenc: 1
+  npred: 2
+  min_keep: 4
+  allow_overlap: True
