@@ -1,8 +1,8 @@
 from torch import nn
 import torch
 
-from layers import Block, get_2d_sincos_pos_embed
-from utils import trunc_normal_
+from src.model.layers import Block, get_2d_sincos_pos_embed
+from src.model.utils import trunc_normal_
 
 
 class UniversalTransformerBlock(nn.Module):
