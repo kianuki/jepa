@@ -117,7 +117,7 @@ class UniversalTransformerBlock(nn.Module):
             output = self.enc_proj(output)
 
             return {
-                "pred_target_embeddings": output, 
+                "predictions": output, 
                 "act_loss": act_loss
             }
 
