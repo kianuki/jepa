@@ -17,6 +17,7 @@ lr_scheduler:
 trainer:
   log_step: 1
   n_epochs: 2
+  n_epoch_probe: 2
   epoch_len: 2
   device_tensors: ["image", "fine_label"] # which tensors should be on device (ex. GPU)
   resume_from: null # null or path to the checkpoint dir with *.pth and config.yaml

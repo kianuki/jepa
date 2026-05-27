@@ -7,7 +7,7 @@ class Trainer(BaseTrainer):
     Trainer class. Defines the logic of batch logging and processing.
     """
 
-    def process_batch(self, batch, metrics: MetricTracker):
+    def process_batch(self, batch, metrics: MetricTracker, epoch: int):
         """
         Run batch through the model, compute metrics, compute loss,
         and do training step (during training stage).
@@ -60,7 +60,11 @@ class Trainer(BaseTrainer):
             metrics.update(loss_name, batch[loss_name].item())
 
         for met in metric_funcs:
-            metrics.update(met.name, met(**batch))
+            if met.name == "LinearProbe":
+                if epoch % self.n_epoch_probe == 0:
+                    metrics.update(met.name, met(**batch))
+            else:
+                metrics.update(met.name, met(**batch))
         return batch
 
     def _log_batch(self, batch_idx, batch, mode="train"):
