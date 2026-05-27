@@ -115,13 +115,19 @@ class UniversalTransformerBlock(nn.Module):
             output = output[:, N_ctxt:]
             output = self.enc_proj(output)
 
-            return output, act_loss
+            return {
+                "pred_target_embeddings": output, 
+                "act_loss": act_loss
+            }
 
         x = self.layernorm(x)
         x = x[:, N_ctxt:]
         x = self.enc_proj(x)
 
-        return x
+        return {
+            "pred_target_embeddings": x,
+            "act_loss" : 0.0
+        }    
     
     def apply_masks(self, x, masks):
         """
