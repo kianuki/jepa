@@ -17,15 +17,15 @@ class MaskCollator(object):
     """
     def __init__(
         self,
-        input_size=(224, 224),
-        patch_size=16,
-        enc_mask_scale=(0.2, 0.8),
-        pred_mask_scale=(0.2, 0.8),
-        aspect_ratio=(0.3, 3.0),
+        input_size=(32, 32),
+        patch_size=4,
+        enc_mask_scale=(0.2, 0.4),
+        pred_mask_scale=(0.2, 0.4),
+        aspect_ratio=(1, 1),
         nenc=1,
         npred=2,
         min_keep=4,
-        allow_overlap=False
+        allow_overlap=True
     ):
         super(MaskCollator, self).__init__()
         if not isinstance(input_size, tuple):
@@ -163,8 +163,15 @@ class MaskCollator(object):
         collated_masks_enc = [[cm[:min_keep_enc] for cm in cm_list] for cm_list in collated_masks_enc]
         collated_masks_enc = torch.utils.data.default_collate(collated_masks_enc)
         
-        result_dict = {'images': collated_batch,
-                       'masks_enc': collated_masks_enc,
-                       'collated_masks_pred': collated_masks_pred}
-
+        result_mask_dict = {'masks_enc': collated_masks_enc,
+                            'masks_pred': collated_masks_pred}
+        
+        result_dict = collated_batch | result_mask_dict
+        
+#        for key, value in result_dict.items():
+#            print(f"key: {key}, value: {value}")
+#
+#        for key, value in result_dict.items():
+#            print(f"{key} dim: {value.shape}") if key not in ['picture_path', 'masks_enc', 'collated_masks_pred'] else print(f"{key} dim: {len(value)}")
+#
         return result_dict

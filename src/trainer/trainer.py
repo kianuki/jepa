@@ -25,6 +25,14 @@ class Trainer(BaseTrainer):
             batch (dict): dict-based batch containing the data from
                 the dataloader (possibly transformed via batch transform),
                 model outputs, and losses.
+
+        P.S. БАТЧ НА ВХОДЕ:
+        {image: tensor [B, C, N, N],
+         picture_path: [B],
+         fine_label: [B],
+         'masks_enc': [1, B] кол-во масок контекста (по умолчанию 1),
+         'masks_pred': [num_areas, B] кол-во прямоугольников (1 если выбран random MaskCollator)
+         }
         """
         batch = self.move_batch_to_device(batch)
         batch = self.transform_batch(batch)  # transform batch on device -- faster

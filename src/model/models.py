@@ -1,8 +1,11 @@
+import math
+import copy
+
+import torch
+import torch.nn as nn
+
 from .layers import *
 from .utils import *
-import torch.nn as nn
-import torch
-import math
 
 
 class VisionTransformerPredictor(nn.Module):
@@ -233,3 +236,66 @@ class VisionTransformer(nn.Module):
         )
         pos_embed = pos_embed.permute(0, 2, 3, 1).view(1, -1, dim)
         return torch.cat((class_emb.unsqueeze(0), pos_embed), dim=1)
+
+class IJEPAWrapper(nn.Module):
+    """
+    Thin I-JEPA module wrapper.
+
+    The wrapper owns the online context encoder, its EMA target encoder, and
+    the predictor. The trainer can treat the whole I-JEPA algorithm as a
+    regular nn.Module with one forward method.
+    """
+
+    def __init__(self, context_encoder, predictor, momentum=0.996):
+        super().__init__()
+        self.context_encoder = context_encoder
+        self.target_encoder = copy.deepcopy(context_encoder)
+        self.predictor = predictor
+        self.momentum = momentum
+
+        self._freeze_target_encoder()
+
+    def _freeze_target_encoder(self):
+        for param in self.target_encoder.parameters():
+            param.requires_grad = False
+        self.target_encoder.eval()
+
+    def train(self, mode=True):
+        super().train(mode)
+        # The target encoder is updated only by EMA, not by train-time layers.
+        self.target_encoder.eval()
+        return self
+
+    def forward(self, image, masks_enc, masks_pred=None, **batch):
+        if masks_pred is None:
+            raise ValueError("IJEPAWrapper requires target masks.")
+
+        context_embeddings = self.context_encoder(image, masks=masks_enc)
+
+        with torch.no_grad():
+            target_embeddings = self.target_encoder(image, masks=masks_pred)
+
+        predictions = self.predictor(
+            context_embeddings,
+            masks_x=masks_enc,
+            masks=masks_pred,
+        )
+
+        outputs = {
+            "predictions": predictions,
+            "targets": target_embeddings.detach(),
+        }
+
+        if isinstance(predictions, tuple):
+            outputs["predictions"] = predictions[0]
+            outputs["act_loss"] = predictions[1]
+
+        return outputs
+
+    @torch.no_grad()
+    def update_target_encoder(self):
+        for context_param, target_param in zip(self.context_encoder.parameters(), self.target_encoder.parameters()):
+            target_param.data.mul_(self.momentum).add_(
+                context_param.data,
+                alpha=1.0 - self.momentum,
+            )
