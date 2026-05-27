@@ -13,7 +13,6 @@ class UniversalTransformerPredictor(nn.Module):
         act=False,
         time_emb=False,
         epsilon=None,
-        num_steps=4,
         max_steps=4,
         embed_dim=768,
         predictor_embed_dim=384,
@@ -34,7 +33,7 @@ class UniversalTransformerPredictor(nn.Module):
         self.act = act
         self.time_emb = time_emb
 
-        self.num_steps = max_steps if act else num_steps
+        self.num_steps = max_steps if act else depth
 
         if act:
             self.epsilon = epsilon
