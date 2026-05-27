@@ -276,7 +276,9 @@ class IJEPAWrapper(nn.Module):
         context_embeddings = self.context_encoder(image, masks=masks_enc)
 
         with torch.no_grad():
-            target_embeddings = self.target_encoder(image, masks=masks_pred)
+            target_embeddings = self.target_encoder(image, masks=masks_pred) # подойдет для рандом масок
+            # target_embeddings = self.target_encoder(image, masks=None)
+
             target_embeddings = repeat_interleave_batch(
                 target_embeddings,
                 image.size(0),

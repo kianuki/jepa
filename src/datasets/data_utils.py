@@ -4,7 +4,6 @@ from hydra.utils import instantiate
 
 from src.datasets.collate import collate_fn
 from src.utils.init_utils import set_worker_seed
-from src.masks.multiblock import MaskCollator
 
 
 def inf_loop(dataloader):
@@ -79,7 +78,7 @@ def get_dataloaders(config, device):
         partition_dataloader = instantiate(
             config.dataloader,
             dataset=dataset,
-            collate_fn=MaskCollator(), # сори
+            #collate_fn=MaskCollator(), # сори
             drop_last=(dataset_partition == "train"),
             shuffle=(dataset_partition == "train"),
             worker_init_fn=set_worker_seed,

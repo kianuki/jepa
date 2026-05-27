@@ -2,7 +2,7 @@ from torch.multiprocessing import Value
 import torch
 
 
-class MaskCollator(object):
+class MaskCollatorRandom(object):
     """
     Основная идея этого генератор масок следующая:
     берем патчи, случайно их перемешиваем, ставим границу на ratio, все что слева - в контекст, все что справа - в таргет
@@ -15,11 +15,11 @@ class MaskCollator(object):
     """
     def __init__(
         self,
-        ratio=(0.4, 0.6),
-        input_size=(224, 224),
-        patch_size=16,
+        ratio=(0.2, 0.4),
+        input_size=(32, 32),
+        patch_size=4,
     ):
-        super(MaskCollator, self).__init__()
+        super(MaskCollatorRandom, self).__init__()
         if not isinstance(input_size, tuple):
             input_size = (input_size, ) * 2
         self.patch_size = patch_size
@@ -66,11 +66,8 @@ class MaskCollator(object):
         collated_masks_enc = torch.utils.data.default_collate(collated_masks_enc)
                 
         result_mask_dict = {'masks_enc': collated_masks_enc,
-                       'collated_masks_pred': collated_masks_pred}
+                            'masks_pred': collated_masks_pred}
         
         result_dict = collated_batch | result_mask_dict
-
-        for key, value in result_dict:
-            print(f"{key} dim: {value.shape}")
-
+ 
         return result_dict

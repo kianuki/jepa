@@ -7,7 +7,7 @@ from logging import getLogger
 logger = getLogger()
 
 
-class MaskCollator(object):
+class MaskCollatorMultiBlock(object):
     """
     Деф блочный генератор масок,
     создает nenc (по дефолту 1) контекстных масок на изображение
@@ -27,7 +27,7 @@ class MaskCollator(object):
         min_keep=4,
         allow_overlap=True
     ):
-        super(MaskCollator, self).__init__()
+        super(MaskCollatorMultiBlock, self).__init__()
         if not isinstance(input_size, tuple):
             input_size = (input_size, ) * 2
         self.patch_size = patch_size

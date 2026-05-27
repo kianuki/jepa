@@ -2,7 +2,7 @@ defaults:
   - model: jepa_1
   - writer: wandb
   - metrics: jepa
-  - datasets: cifar100
+  - datasets: cifar10
   - dataloader: dataloader_1
   - loss_function: jepa
   - transforms: example
@@ -14,7 +14,7 @@ lr_scheduler:
   gamma: 0.9
   step_size: ${trainer.epoch_len}
 trainer:
-  log_step: 1
+  log_step: 519
   n_epochs: 100
   n_epoch_probe: 5
   epoch_len: 519
