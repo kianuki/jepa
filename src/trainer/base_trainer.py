@@ -118,6 +118,11 @@ class BaseTrainer:
         # setup visualization writer instance
         self.writer = writer
 
+        #---ОПАСНО ОЧЕНЬ ОПАСНО ОН СОБИРАЕТСЯ ПРЫГНУТЬ---
+        if hasattr(self.writer, "wandb"):
+            # log_freq берем из твоего
+            self.writer.wandb.watch(self.model, log="all", log_freq=self.log_step)
+
         # define metrics
         self.metrics = metrics
         self.train_metrics = MetricTracker(

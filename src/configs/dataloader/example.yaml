@@ -2,3 +2,8 @@ _target_: torch.utils.data.DataLoader
 batch_size: 10
 num_workers: 2
 pin_memory: True
+collate_fn:
+  _target_: src.masks.MaskCollatorRandom
+  ratio: [0.2, 0.4]
+  input_size: 32
+  patch_size: 4

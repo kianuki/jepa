@@ -3,6 +3,7 @@ import copy
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 from .layers import *
 from .utils import *
@@ -272,18 +273,16 @@ class IJEPAWrapper(nn.Module):
         if masks_pred is None:
             raise ValueError("IJEPAWrapper requires target masks.")
 
-        masks_enc_list = masks_enc if isinstance(masks_enc, list) else [masks_enc]
+        # masks_enc_list = masks_enc if isinstance(masks_enc, list) else [masks_enc]
         context_embeddings = self.context_encoder(image, masks=masks_enc)
 
         with torch.no_grad():
-            target_embeddings = self.target_encoder(image, masks=masks_pred) # подойдет для рандом масок
-            # target_embeddings = self.target_encoder(image, masks=None)
-
-            target_embeddings = repeat_interleave_batch(
-                target_embeddings,
-                image.size(0),
-                repeat=len(masks_enc_list),
-            )
+            # target_embeddings = self.target_encoder(image, masks=masks_pred) # подойдет для рандом масок
+            target_embeddings = self.target_encoder(image, masks=None)
+            target_embeddings = F.layer_norm(target_embeddings, (target_embeddings.size(-1),))
+            B = len(target_embeddings)
+            target_embeddings = apply_masks(target_embeddings, masks_pred)
+            target_embeddings = repeat_interleave_batch(target_embeddings, B, repeat=len(masks_enc))
 
         predictions = self.predictor(
             context_embeddings,

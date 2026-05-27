@@ -14,7 +14,7 @@ inference:
     metric_type: mse
     name: "MSE"
   - _target_: src.metrics.linear_probe.LinearProbeMetric
-    embed_dim: 16
-    num_classes: 100
-    probe_epochs: 2
+    embed_dim: 288
+    num_classes: 10
+    probe_epochs: 4
     name: "LinearProbe"
