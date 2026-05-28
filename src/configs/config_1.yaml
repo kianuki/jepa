@@ -15,12 +15,14 @@ optimizer:
 #  gamma: 0.9
 #  step_size: ${trainer.epoch_len}
 lr_scheduler:
-  _target_: timm.scheduler.cosine_lr.CosineLRScheduler
-  t_initial: 78100 #ОПАСНО 
-  lr_min: 1e-6
-  warmup_t: ${trainer.epoch_len}
-  warmup_lr_init: 1e-7
-  cycle_decay: 1
+  _target_: torch.optim.lr_scheduler.OneCycleLR
+#  total_steps: 78100 #ОПАСНО 
+  steps_per_epoch: ${trainer.epoch_len} 
+  epochs: ${trainer.n_epochs}
+  pct_start: 0.25
+  max_lr: 5e-5
+  div_factor: 500.0
+  final_div_factor: 50.0 
 trainer:
   log_step: 781
   n_epochs: 100
