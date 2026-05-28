@@ -24,6 +24,7 @@ predictor:
   num_patches: 64
   embed_dim: 288
   predictor_embed_dim: 192
+  time_emb: True
   depth: 8
   num_heads: 6
   mlp_ratio: 4.0
