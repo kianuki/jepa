@@ -8,24 +8,24 @@ defaults:
   - transforms: example
 optimizer:
   _target_: torch.optim.AdamW
-  lr: 5e-3
-  weight_decay: 3e-4
+  lr: 5e-5
+  weight_decay: 5e-3
 #lr_scheduler:
 #  _target_: torch.optim.lr_scheduler.StepLR
 #  gamma: 0.9
 #  step_size: ${trainer.epoch_len}
 lr_scheduler:
   _target_: timm.scheduler.cosine_lr.CosineLRScheduler
-  t_initial: 103800 #ОПАСНО 
+  t_initial: 78100 #ОПАСНО 
   lr_min: 1e-6
   warmup_t: ${trainer.epoch_len}
   warmup_lr_init: 1e-7
   cycle_decay: 1
 trainer:
-  log_step: 1038
+  log_step: 781
   n_epochs: 100
   n_epoch_probe: 5
-  epoch_len: 1038
+  epoch_len: 781
   device_tensors: ["image", "fine_label"] # which tensors should be on device (ex. GPU)
   resume_from: null # null or path to the checkpoint dir with *.pth and config.yaml
   device: "auto" # device name or "auto"

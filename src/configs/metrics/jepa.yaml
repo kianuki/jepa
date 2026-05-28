@@ -5,6 +5,9 @@ train:
   - _target_: src.metrics.jepa.JEPAMetric
     metric_type: mse
     name: "TRAIN_MSE"
+  - _target_: src.metrics.jepa.JEPAMetric
+    metric_type: target_std
+    name: "TRAIN_target_std"
 
 inference:
   - _target_: src.metrics.jepa.JEPAMetric
