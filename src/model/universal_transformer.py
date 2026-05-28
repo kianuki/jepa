@@ -157,9 +157,12 @@ class UniversalTransformerPredictor(nn.Module):
             output = output[:, N_ctxt:]
             output = self.enc_proj(output)
 
+            avg_steps = (n_updates + remainders).mean().item()
+
             return {
                 "predictions": output, 
-                "act_loss": act_loss
+                "act_loss": act_loss,
+                "avg_act_steps": avg_steps
             }
 
 
