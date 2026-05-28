@@ -60,9 +60,6 @@ class Trainer(BaseTrainer):
         for loss_name in self.config.writer.loss_names:
             metrics.update(loss_name, batch[loss_name].item())
 
-        if "avg_act_steps" in batch and batch["avg_act_steps"] is not None:
-            metrics.update("avg_act_steps", batch["avg_act_steps"])
-
         for met in metric_funcs:
             if met.name == "LinearProbe":
                 if epoch % self.n_epoch_probe == 0:

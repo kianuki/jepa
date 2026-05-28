@@ -1,7 +1,7 @@
 defaults:
   - model: jepa_ut
   - writer: wandb_ut
-  - metrics: jepa
+  - metrics: jepa_ut
   - datasets: cifar10
   - dataloader: dataloader_1
   - loss_function: jepa

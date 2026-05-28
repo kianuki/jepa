@@ -1,0 +1,31 @@
+train:
+  - _target_: src.metrics.jepa.JEPAMetric
+    metric_type: cosine
+    name: "TRAIN_CosineSimilarity"
+  - _target_: src.metrics.jepa.JEPAMetric
+    metric_type: mse
+    name: "TRAIN_MSE"
+  - _target_: src.metrics.jepa.JEPAMetric
+    metric_type: target_std
+    name: "TRAIN_target_std"
+  - _target_: src.metrics.jepa.JEPAMetric
+    metric_type: avg_act_steps
+    name: "TRAIN_avg_act_steps"
+inference:
+  - _target_: src.metrics.jepa.JEPAMetric
+    metric_type: cosine
+    name: "CosineSimilarity"
+  - _target_: src.metrics.jepa.JEPAMetric
+    metric_type: mse
+    name: "MSE"
+  - _target_: src.metrics.jepa.JEPAMetric
+    metric_type: target_std
+    name: "target_std"
+  - _target_: src.metrics.jepa.JEPAMetric
+    metric_type: avg_act_steps
+    name: "avg_act_steps"
+  - _target_: src.metrics.linear_probe.LinearProbeMetric
+    embed_dim: 288
+    num_classes: 10
+    probe_epochs: 4
+    name: "LinearProbe"
