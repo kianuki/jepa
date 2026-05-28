@@ -16,9 +16,7 @@ optimizer:
 #  step_size: ${trainer.epoch_len}
 lr_scheduler:
   _target_: torch.optim.lr_scheduler.OneCycleLR
-#  total_steps: 78100 #ОПАСНО 
-  steps_per_epoch: ${trainer.epoch_len} 
-  epochs: ${trainer.n_epochs}
+  total_steps: 78100 #ОПАСНО 
   pct_start: 0.25
   max_lr: 5e-5
   div_factor: 500.0
