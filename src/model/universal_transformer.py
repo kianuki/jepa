@@ -153,9 +153,9 @@ class UniversalTransformerPredictor(nn.Module):
 
         if self.act:
             act_loss = (n_updates + remainders).mean()
-            output = self.layernorm(output)
+            output = self.predictor_norm(output)
             output = output[:, N_ctxt:]
-            output = self.enc_proj(output)
+            output = self.predictor_proj(output)
 
             avg_steps = (n_updates + remainders).mean().item()
 
