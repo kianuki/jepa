@@ -25,6 +25,9 @@ predictor:
   embed_dim: 288
   predictor_embed_dim: 192
   time_emb: True
+  act: False
+  epsilon: null
+  max_steps: null
   depth: 8
   num_heads: 6
   mlp_ratio: 4.0
