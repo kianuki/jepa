@@ -262,7 +262,7 @@ class BaseTrainer:
         if epoch % self.n_epoch_probe == 0:
             for met in self.metrics["inference"]:
                 if hasattr(met, "train_probe"):
-                    met.train_probe(self.train_dataloader, self.device)
+                    met.train_probe(self.train_dataloader)
 
         # Run val/test
         for part, dataloader in self.evaluation_dataloaders.items():

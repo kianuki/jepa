@@ -37,6 +37,17 @@ def main(config):
     # batch_transforms should be put on device
     dataloaders, batch_transforms = get_dataloaders(config, device)
 
+    # epoch_len = number of iterations for iteration-based training
+    # epoch_len = None or len(dataloader) for epoch-based training
+    epoch_len = config.trainer.get("epoch_len")
+ 
+    # calc epoch_len if it's None
+    if epoch_len is None:
+        # epoch-based training
+        epoch_len = len(dataloaders["train"])
+        config.trainer.epoch_len = epoch_len
+        config.trainer.log_step = epoch_len
+
     # build model architecture, then print to console
     model = instantiate(config.model).to(device)
     logger.info(model)
@@ -48,12 +59,9 @@ def main(config):
     # build optimizer, learning rate scheduler
     trainable_params = filter(lambda p: p.requires_grad, model.parameters())
     optimizer = instantiate(config.optimizer, params=trainable_params)
-    lr_scheduler = instantiate(config.lr_scheduler, optimizer=optimizer)
+    lr_scheduler = instantiate(config.lr_scheduler, optimizer=optimizer, total_steps=epoch_len * config.trainer.n_epochs)
 
-    # epoch_len = number of iterations for iteration-based training
-    # epoch_len = None or len(dataloader) for epoch-based training
-    epoch_len = config.trainer.get("epoch_len")
-
+   
     trainer = Trainer(
         model=model,
         criterion=loss_function,

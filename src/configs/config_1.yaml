@@ -10,13 +10,9 @@ optimizer:
   _target_: torch.optim.AdamW
   lr: 5e-5
   weight_decay: 5e-3
-#lr_scheduler:
-#  _target_: torch.optim.lr_scheduler.StepLR
-#  gamma: 0.9
-#  step_size: ${trainer.epoch_len}
 lr_scheduler:
   _target_: torch.optim.lr_scheduler.OneCycleLR
-  total_steps: 78100 #ОПАСНО 
+  total_steps: 78100 #ОПАСНО
   pct_start: 0.25
   max_lr: 5e-5
   div_factor: 500.0

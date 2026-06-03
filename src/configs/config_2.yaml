@@ -1,7 +1,7 @@
 defaults:
   - model: jepa_2
   - writer: wandb
-  - metrics: jepa
+  - metrics: metrics_2
   - datasets: cifar10
   - dataloader: dataloader_2
   - loss_function: jepa
@@ -12,16 +12,16 @@ optimizer:
   weight_decay: 5e-3
 lr_scheduler:
   _target_: torch.optim.lr_scheduler.OneCycleLR
-  total_steps: 78100 #ОПАСНО 
+  total_steps: null # само посчитает @!%*& 
   pct_start: 0.25
   max_lr: 5e-5
   div_factor: 500.0
   final_div_factor: 50.0 
 trainer:
-  log_step: 781
+  log_step: null
   n_epochs: 100
   n_epoch_probe: 5
-  epoch_len: 781
+  epoch_len: null
   device_tensors: ["image", "fine_label"] # which tensors should be on device (ex. GPU)
   resume_from: null # null or path to the checkpoint dir with *.pth and config.yaml
   device: "auto" # device name or "auto"

@@ -168,10 +168,4 @@ class MaskCollatorMultiBlock(object):
         
         result_dict = collated_batch | result_mask_dict
         
-#        for key, value in result_dict.items():
-#            print(f"key: {key}, value: {value}")
-#
-#        for key, value in result_dict.items():
-#            print(f"{key} dim: {value.shape}") if key not in ['picture_path', 'masks_enc', 'collated_masks_pred'] else print(f"{key} dim: {len(value)}")
-#
         return result_dict

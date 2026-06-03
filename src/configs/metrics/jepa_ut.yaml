@@ -25,7 +25,8 @@ inference:
     metric_type: avg_act_steps
     name: "avg_act_steps"
   - _target_: src.metrics.linear_probe.LinearProbeMetric
-    embed_dim: 288
-    num_classes: 10
-    probe_epochs: 4
+    embed_dim: ${model.context_encoder.embed_dim}
+    num_classes: ${datasets.train.n_classes}
+    epoch_len: ${trainer.epoch_len}
+    probe_epochs: 8
     name: "LinearProbe"

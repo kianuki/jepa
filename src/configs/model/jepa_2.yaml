@@ -7,9 +7,9 @@ context_encoder:
   patch_size: 4
   in_chans: 3
   embed_dim: 192
-  predictor_embed_dim: 144 
+  predictor_embed_dim: ${model.predictor.predictor_embed_dim}
   depth: 6
-  predictor_depth: 3
+  predictor_depth: ${model.predictor.depth}
   num_heads: 4
   mlp_ratio: 4.0
   qkv_bias: True
@@ -22,7 +22,7 @@ context_encoder:
 predictor:
   _target_: src.model.models.VisionTransformerPredictor
   num_patches: 64
-  embed_dim: 192
+  embed_dim: ${model.context_encoder.embed_dim}
   predictor_embed_dim: 144
   depth: 3
   num_heads: 4
