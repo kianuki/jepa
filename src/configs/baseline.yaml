@@ -5,7 +5,7 @@ defaults:
   - datasets: cifar10
   - dataloader: example
   - loss_function: jepa
-  - transforms: example
+  - transforms: cifar_transform
 optimizer:
   _target_: torch.optim.Adam
   lr: 3e-4

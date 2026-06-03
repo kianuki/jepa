@@ -1,19 +1,15 @@
 defaults:
-  - model: jepa_1
+  - model: jepa_2
   - writer: wandb
   - metrics: jepa
   - datasets: cifar10
-  - dataloader: dataloader_1
+  - dataloader: dataloader_2
   - loss_function: jepa
   - transforms: cifar_transform
 optimizer:
   _target_: torch.optim.AdamW
   lr: 5e-5
   weight_decay: 5e-3
-#lr_scheduler:
-#  _target_: torch.optim.lr_scheduler.StepLR
-#  gamma: 0.9
-#  step_size: ${trainer.epoch_len}
 lr_scheduler:
   _target_: torch.optim.lr_scheduler.OneCycleLR
   total_steps: 78100 #ОПАСНО 

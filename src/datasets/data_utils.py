@@ -78,7 +78,6 @@ def get_dataloaders(config, device):
         partition_dataloader = instantiate(
             config.dataloader,
             dataset=dataset,
-            #collate_fn=MaskCollator(), # сори
             drop_last=(dataset_partition == "train"),
             shuffle=(dataset_partition == "train"),
             worker_init_fn=set_worker_seed,

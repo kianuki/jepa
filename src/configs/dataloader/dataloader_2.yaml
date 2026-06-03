@@ -1,0 +1,15 @@
+_target_: torch.utils.data.DataLoader
+batch_size: 64
+num_workers: 3
+pin_memory: True
+collate_fn:
+  _target_: src.masks.MaskCollatorMultiBlock
+  input_size: 32
+  patch_size: 4
+  enc_mask_scale: [0.75, 0.9]
+  pred_mask_scale: [0.15, 0.3]
+  aspect_ratio: [0.75, 1.5]
+  nenc: 1
+  npred: 2
+  min_keep: 12
+  allow_overlap: False

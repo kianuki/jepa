@@ -76,7 +76,6 @@ class BaseTrainer:
         self.batch_transforms = batch_transforms
 
         # define dataloaders
-        self.linear_probe_dataloader = dataloaders["train"]
         self.n_epoch_probe = config.trainer.get("n_epoch_probe", 10)
 
         self.train_dataloader = dataloaders["train"]
@@ -263,7 +262,7 @@ class BaseTrainer:
         if epoch % self.n_epoch_probe == 0:
             for met in self.metrics["inference"]:
                 if hasattr(met, "train_probe"):
-                    met.train_probe(self.linear_probe_dataloader, self.device)
+                    met.train_probe(self.train_dataloader, self.device)
 
         # Run val/test
         for part, dataloader in self.evaluation_dataloaders.items():

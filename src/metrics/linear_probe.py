@@ -10,23 +10,22 @@ class LinearProbeMetric(BaseMetric):
         self.embed_dim = embed_dim
         self.num_classes = num_classes
         self.probe_epochs = probe_epochs
-        self.classifier = nn.Linear(embed_dim, num_classes)
         self._is_trained = False
 
     def set_encoder(self, encoder, device):
         self.encoder = encoder
         self.device = device
-        self.classifier = self.classifier.to(device)
 
     def train_probe(self, train_loader, device):
-        self.classifier = nn.Linear(self.embed_dim, self.num_classes).to(device)
+        self.init_classifier()
         self.classifier.train()
+        self.encoder.eval()
+        
         self._is_trained = False
 
-        optimizer = torch.optim.Adam(self.classifier.parameters(), lr=1e-3)
+        optimizer = torch.optim.AdamW(self.classifier.parameters(), lr=1e-3)
         criterion = nn.CrossEntropyLoss()
 
-        self.encoder.eval()
         for _ in tqdm(range(self.probe_epochs), desc="Linear Probe", leave=False):
             for batch in train_loader:
                 images = batch["image"].to(device)
@@ -41,6 +40,9 @@ class LinearProbeMetric(BaseMetric):
                 optimizer.step()
 
         self._is_trained = True
+    
+    def init_classifier(self):
+        self.classifier = nn.Linear(self.embed_dim, self.num_classes).to(self.device)
 
     def __call__(self, image, fine_label, **batch):
         assert self._is_trained, "Call train_probe() before using metric"

@@ -1,0 +1,4 @@
+defaults:
+  - batch_transforms: example
+  - instance_transforms: cifar10_transform
+  - _self_

@@ -1,4 +1,0 @@
-_target_: src.model.models.VisionTransformer
-n_feats: 960
-fc_hidden: 512
-n_class: 10
