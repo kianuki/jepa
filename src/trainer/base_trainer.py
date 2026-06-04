@@ -57,7 +57,8 @@ class BaseTrainer:
         """
 
         self.global_step = 0
-
+        self.global_train_step = 0
+        self.total_steps = config.trainer.epoch_len * config.trainer.n_epochs
         self.is_train = True
 
         self.config = config
@@ -244,9 +245,15 @@ class BaseTrainer:
                     )
                 )
                 current_lr = self.optimizer.param_groups[0]["lr"]
+                
                 self.writer.add_scalar(
                     "learning rate", current_lr
                 )
+                
+                self.writer.add_scalar(
+                        "momentum", self.model.momentum
+                )
+
                 self._log_scalars(self.train_metrics)
                 self._log_batch(batch_idx, batch)
                 # we don't want to reset train metrics at the start of every epoch

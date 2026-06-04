@@ -3,6 +3,7 @@ from torch import nn
 from tqdm import tqdm
 import torch
 
+
 class LinearProbeMetric(BaseMetric):
     def __init__(self, embed_dim, epoch_len, num_classes=100, probe_epochs=10, lp_batch_size=256, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -21,7 +22,7 @@ class LinearProbeMetric(BaseMetric):
     def train_probe(self, train_loader):
         self.init_classifier()
         self.classifier = self.classifier.train()
-        optimizer = torch.optim.AdamW(self.classifier.parameters(), lr=1e-3)
+        optimizer = torch.optim.AdamW(self.classifier.parameters(), lr=5e-3)
         criterion = nn.CrossEntropyLoss()
 
         self.encoder.eval()
@@ -64,7 +65,8 @@ class LinearProbeMetric(BaseMetric):
         self._is_trained = True
     
     def init_classifier(self):
-        self.classifier = nn.Linear(self.embed_dim, self.num_classes).to(self.device)
+        self.classifier = nn.Sequential(nn.LayerNorm(self.embed_dim),
+                                        nn.Linear(self.embed_dim, self.num_classes)).to(self.device)
 
     def __call__(self, image, fine_label, **batch):
         assert self._is_trained, "Call train_probe() before using metric"

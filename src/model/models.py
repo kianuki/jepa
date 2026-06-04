@@ -238,6 +238,7 @@ class VisionTransformer(nn.Module):
             mode='bicubic',
         )
         pos_embed = pos_embed.permute(0, 2, 3, 1).view(1, -1, dim)
+
         return torch.cat((class_emb.unsqueeze(0), pos_embed), dim=1)
 
 class IJEPAWrapper(nn.Module):
@@ -249,13 +250,13 @@ class IJEPAWrapper(nn.Module):
     regular nn.Module with one forward method.
     """
 
-    def __init__(self, context_encoder, predictor, momentum=0.996):
+    def __init__(self, context_encoder, predictor, base_momentum=0.996):
         super().__init__()
         self.context_encoder = context_encoder
         self.target_encoder = copy.deepcopy(context_encoder)
         self.predictor = predictor
-        self.momentum = momentum
-
+        self.base_momentum = base_momentum
+    
         self._freeze_target_encoder()
 
     def _freeze_target_encoder(self):
@@ -277,7 +278,6 @@ class IJEPAWrapper(nn.Module):
         context_embeddings = self.context_encoder(image, masks=masks_enc)
 
         with torch.no_grad():
-            # target_embeddings = self.target_encoder(image, masks=masks_pred) # подойдет для рандом масок
             target_embeddings = self.target_encoder(image, masks=None)
             target_embeddings = F.layer_norm(target_embeddings, (target_embeddings.size(-1),))
             B = len(target_embeddings)
@@ -295,7 +295,9 @@ class IJEPAWrapper(nn.Module):
         return predictions
 
     @torch.no_grad()
-    def update_target_encoder(self):
+    def update_target_encoder(self, current_step, total_steps):
+        self.momentum = 1.0 - (1.0 - self.base_momentum) * (math.cos(math.pi * current_step / total_steps) + 1) / 2
+
         for context_param, target_param in zip(self.context_encoder.parameters(), self.target_encoder.parameters()):
             target_param.data.mul_(self.momentum).add_(
                 context_param.data,

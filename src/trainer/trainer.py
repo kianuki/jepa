@@ -34,6 +34,7 @@ class Trainer(BaseTrainer):
          'masks_pred': [num_areas, B] кол-во прямоугольников (1 если выбран random MaskCollator)
          }
         """
+
         batch = self.move_batch_to_device(batch)
         batch = self.transform_batch(batch)  # transform batch on device -- faster
 
@@ -49,12 +50,13 @@ class Trainer(BaseTrainer):
         batch.update(all_losses)
 
         if self.is_train:
+            self.global_train_step += 1
             batch["loss"].backward()  # sum of all losses is always called loss
             self._clip_grad_norm()
             self.optimizer.step()
             if self.lr_scheduler is not None:
                 self.lr_scheduler.step()
-            self.model.update_target_encoder()
+            self.model.update_target_encoder(self.global_train_step, self.total_steps)
 
         # update metrics for each loss (in case of multiple losses)
         for loss_name in self.config.writer.loss_names:
@@ -66,6 +68,7 @@ class Trainer(BaseTrainer):
                     metrics.update(met.name, met(**batch))
             else:
                 metrics.update(met.name, met(**batch))
+
         return batch
 
     def _log_batch(self, batch_idx, batch, mode="train"):
@@ -80,7 +83,7 @@ class Trainer(BaseTrainer):
             mode (str): train or inference. Defines which logging
                 rules to apply.
         """
-        self.global_step += 1
+        # self.global_step += 1 uncomment only if delete same row in process batch method
         # method to log data from you batch
         # such as audio, text or images, for example
 

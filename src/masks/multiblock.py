@@ -2,7 +2,7 @@ from torch.multiprocessing import Value
 import torch
 import math
 from logging import getLogger
-
+from random import random
 
 logger = getLogger()
 
@@ -49,7 +49,7 @@ class MaskCollatorMultiBlock(object):
         return v
 
     def _sample_block_size(self, generator, scale, aspect_ratio_scale):
-        _rand = torch.rand(1, generator=generator).item()
+        _rand = max(0.3, torch.rand(1, generator=generator).item())
         # -- Sample block scale
         min_s, max_s = scale
         mask_scale = min_s + _rand * (max_s - min_s)
@@ -60,6 +60,18 @@ class MaskCollatorMultiBlock(object):
         # -- Compute block height and width (given scale and aspect-ratio)
         h = int(round(math.sqrt(max_keep * aspect_ratio)))
         w = int(round(math.sqrt(max_keep / aspect_ratio)))
+        
+        # make mask shape of square
+        if random() < 0.3:
+            if random() < 0.5:
+                h = w = min(h, w)
+            else:
+                h = w = max(h, w)
+        
+        # flip rectangle
+        if random() < 0.5:
+            h, w = w, h 
+
         while h >= self.height:
             h -= 1
         while w >= self.width:

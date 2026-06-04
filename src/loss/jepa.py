@@ -16,9 +16,7 @@ class JEPALoss(nn.Module):
         self.act_lambda = act_lambda
 
     def forward(self, predictions, targets, act_loss=None, **batch):
-        if self.normalize_targets:
-            targets = F.layer_norm(targets, (targets.size(-1),))
-
+        # targets normalized in forward IJEPAWrapper method
         loss = F.smooth_l1_loss(predictions, targets)
         result = {"loss": loss}
 

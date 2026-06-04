@@ -24,9 +24,9 @@ def visualize_masks(image_path="image_1.png"):
     collator = MaskCollatorMultiBlock(
         input_size=input_size,
         patch_size=patch_size,
-        enc_mask_scale=(0.75, 0.9),  # твои обновленные масштабы
-        pred_mask_scale=(0.1, 0.15),
-        aspect_ratio=(1, 1),
+        enc_mask_scale=(0.3, 0.6),  # твои обновленные масштабы
+        pred_mask_scale=(0.15, 0.2),
+        aspect_ratio=(0.75, 1.5),
         nenc=nenc,
         npred=npred,
         allow_overlap=False,  # можно поменять на False для теста
@@ -53,7 +53,8 @@ def visualize_masks(image_path="image_1.png"):
     batch = [{'image': img_tensor}]
 
     # 4. Прогоняем через коллатор
-    output_dict = collator(batch)
+    for _ in range(10 ** 5):
+        output_dict = collator(batch)
 
     # Извлекаем маски для нулевого элемента батча
     # Индексы масок имеют форму: [B, nenc/npred, num_kept_patches]

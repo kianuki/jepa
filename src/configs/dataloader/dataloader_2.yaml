@@ -6,10 +6,10 @@ collate_fn:
   _target_: src.masks.MaskCollatorMultiBlock
   input_size: 32
   patch_size: 4
-  enc_mask_scale: [0.75, 0.9]
-  pred_mask_scale: [0.1, 0.15]
-  aspect_ratio: [1, 1]
+  enc_mask_scale: [0.3, 0.6]
+  pred_mask_scale: [0.15, 0.2]
+  aspect_ratio: [0.75, 1.5]
   nenc: 1
-  npred: 1
+  npred: 2
   min_keep: 4
   allow_overlap: False

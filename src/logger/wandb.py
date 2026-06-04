@@ -83,9 +83,15 @@ class WandBWriter:
             self.timer = datetime.now()
         else:
             duration = datetime.now() - self.timer
-            self.add_scalar(
-                "steps_per_sec", (self.step - previous_step) / duration.total_seconds()
-            )
+            try:
+                self.add_scalar(
+                    "steps_per_sec", (self.step - previous_step) / duration.total_seconds()
+                )
+            except ZeroDivisionError:
+                self.add_scalar(
+                        "steps_per_sec", 0
+                )
+
             self.timer = datetime.now()
 
     def _object_name(self, object_name):
