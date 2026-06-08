@@ -48,18 +48,48 @@ class MaskCollatorMultiBlock(object):
             v = i.value
         return v
 
+#     def _sample_block_size(self, generator, scale, aspect_ratio_scale):
+#         _rand = max(0.7, torch.rand(1, generator=generator).item())
+#         # -- Sample block scale
+#         min_s, max_s = scale
+#         mask_scale = min_s + _rand * (max_s - min_s)
+#         max_keep = int(self.height * self.width * mask_scale)
+#         # -- Sample block aspect-ratio
+#         min_ar, max_ar = aspect_ratio_scale
+#         aspect_ratio = min_ar + _rand * (max_ar - min_ar)
+#         # -- Compute block height and width (given scale and aspect-ratio)
+#         h = int(round(math.sqrt(max_keep * aspect_ratio)))
+#         w = int(round(math.sqrt(max_keep / aspect_ratio)))
+#
+#         # make mask shape of square
+#         if random() < 0.3:
+#             if random() < 0.5:
+#                 h = w = min(h, w)
+#             else:
+#                 h = w = max(h, w)
+#
+#         # flip rectangle
+#         if random() < 0.5:
+#             h, w = w, h 
+#
+#         while h >= self.height:
+#            h -= 1
+#        while w >= self.width:
+#            w -= 1
+#
+#        return (h, w)
+
     def _sample_block_size(self, generator, scale, aspect_ratio_scale):
+        random_scale_h = torch.randint(-1, 1, (1,), generator=generator).item()
+        random_scale_w = torch.randint(-1, 1, (1,), generator=generator).item()
+
         _rand = max(0.3, torch.rand(1, generator=generator).item())
-        # -- Sample block scale
         min_s, max_s = scale
         mask_scale = min_s + _rand * (max_s - min_s)
         max_keep = int(self.height * self.width * mask_scale)
-        # -- Sample block aspect-ratio
-        min_ar, max_ar = aspect_ratio_scale
-        aspect_ratio = min_ar + _rand * (max_ar - min_ar)
-        # -- Compute block height and width (given scale and aspect-ratio)
-        h = int(round(math.sqrt(max_keep * aspect_ratio)))
-        w = int(round(math.sqrt(max_keep / aspect_ratio)))
+
+        h = int(round(math.sqrt(max_keep))) + random_scale_h
+        w = int(round(math.sqrt(max_keep))) + random_scale_w
         
         # make mask shape of square
         if random() < 0.3:
@@ -76,7 +106,7 @@ class MaskCollatorMultiBlock(object):
             h -= 1
         while w >= self.width:
             w -= 1
-
+        
         return (h, w)
 
     def _sample_block_mask(self, b_size, acceptable_regions=None):
@@ -94,8 +124,8 @@ class MaskCollatorMultiBlock(object):
         valid_mask = False
         while not valid_mask:
             # -- Sample block top-left corner
-            top = torch.randint(0, self.height - h, (1,))
-            left = torch.randint(0, self.width - w, (1,))
+            top = torch.randint(0, self.height - h + 1, (1,))
+            left = torch.randint(0, self.width - w + 1, (1,))
             mask = torch.zeros((self.height, self.width), dtype=torch.int32)
             mask[top:top+h, left:left+w] = 1
             # -- Constrain mask to a set of acceptable regions

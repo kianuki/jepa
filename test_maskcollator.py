@@ -24,13 +24,13 @@ def visualize_masks(image_path="image_1.png"):
     collator = MaskCollatorMultiBlock(
         input_size=input_size,
         patch_size=patch_size,
-        enc_mask_scale=(0.3, 0.6),  # твои обновленные масштабы
+        enc_mask_scale=(0.4, 0.6),  # твои обновленные масштабы
         pred_mask_scale=(0.15, 0.2),
         aspect_ratio=(0.75, 1.5),
         nenc=nenc,
         npred=npred,
         allow_overlap=False,  # можно поменять на False для теста
-        min_keep=4,
+        min_keep=3,
     )
 
     # 3. Загружаем и подготавливаем изображение
