@@ -78,8 +78,10 @@ class VisionTransformerPredictor(nn.Module):
             if m.bias is not None:
                 nn.init.constant_(m.bias, 0)
 
-    def forward(self, x, masks_x, masks):
+    def forward(self, x, masks_x, masks, return_attn=False):
         assert (masks is not None) and (masks_x is not None), 'Cannot run predictor without mask indices'
+
+        attn_buffer = []
 
         if not isinstance(masks_x, list):
             masks_x = [masks_x]
@@ -112,17 +114,24 @@ class VisionTransformerPredictor(nn.Module):
 
         # -- fwd prop
         for blk in self.predictor_blocks:
-            x = blk(x)
+            if return_attn:
+                x, attn = blk(x, return_attn)
+                attn_buffer.append(attn)
+            else:
+                x = blk(x)
+
         x = self.predictor_norm(x)
 
         # -- return preds for mask tokens
         x = x[:, N_ctxt:]
         x = self.predictor_proj(x)
+        
+        result_dict = {
+                "predictions": x,
+                "attentions": attn_buffer
+                }
 
-        return {
-            "predictions": x
-        }
-
+        return result_dict
 
 class VisionTransformer(nn.Module):
     """
@@ -198,7 +207,9 @@ class VisionTransformer(nn.Module):
             if m.bias is not None:
                 nn.init.constant_(m.bias, 0)
 
-    def forward(self, x, masks=None):
+    def forward(self, x, masks=None, save_intermediate_embs=False):
+        intermediate_embs = {}
+
         if masks is not None:
             if not isinstance(masks, list):
                 masks = [masks]
@@ -218,11 +229,18 @@ class VisionTransformer(nn.Module):
         # -- fwd prop
         for i, blk in enumerate(self.blocks):
             x = blk(x)
+            if save_intermediate_embs:
+                intermediate_embs[i] = x
 
         if self.norm is not None:
             x = self.norm(x)
+        
+        result = {
+                "embeddings": x,
+                "intermediate_embs": intermediate_embs
+                }
 
-        return x
+        return result
 
     def interpolate_pos_encoding(self, x, pos_embed):
         npatch = x.shape[1] - 1
@@ -275,10 +293,10 @@ class IJEPAWrapper(nn.Module):
             raise ValueError("IJEPAWrapper requires target masks.")
 
         # masks_enc_list = masks_enc if isinstance(masks_enc, list) else [masks_enc]
-        context_embeddings = self.context_encoder(image, masks=masks_enc)
+        context_embeddings = self.context_encoder(image, masks=masks_enc)["embeddings"]
 
         with torch.no_grad():
-            target_embeddings = self.target_encoder(image, masks=None)
+            target_embeddings = self.target_encoder(image, masks=None)["embeddings"]
             target_embeddings = F.layer_norm(target_embeddings, (target_embeddings.size(-1),))
             B = len(target_embeddings)
             target_embeddings = apply_masks(target_embeddings, masks_pred)

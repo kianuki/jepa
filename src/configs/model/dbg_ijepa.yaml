@@ -1,5 +1,5 @@
 _target_: src.model.models.IJEPAWrapper
-momentum: 0.996
+base_momentum: 0.996
 
 context_encoder:
   _target_: src.model.models.VisionTransformer

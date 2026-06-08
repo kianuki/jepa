@@ -170,10 +170,11 @@ class Block(nn.Module):
         output: attn if return attention (зачем см class Attention) else x [B, N, C]
         """
         y, attn = self.attn(self.norm1(x))
-        if return_attention:
-            return attn
         x = x + self.drop_path(y)
         x = x + self.drop_path(self.mlp(self.norm2(x)))
+        if return_attention:
+            return x, attn
+
         return x
 
 

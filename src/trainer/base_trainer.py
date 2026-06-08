@@ -1,5 +1,6 @@
 from abc import abstractmethod
 
+from hydra.utils import instantiate
 import torch
 from numpy import inf
 from torch.nn.utils import clip_grad_norm_
@@ -58,7 +59,6 @@ class BaseTrainer:
 
         self.global_step = 0
         self.global_train_step = 0
-        self.total_steps = config.trainer.epoch_len * config.trainer.n_epochs
         self.is_train = True
 
         self.config = config
@@ -68,7 +68,7 @@ class BaseTrainer:
         self.skip_oom = skip_oom
 
         self.logger = logger
-        self.log_step = config.trainer.get("log_step", 50)
+        self.log_step = config.trainer.get("log_step") or 50
 
         self.model = model
         self.criterion = criterion
@@ -87,6 +87,8 @@ class BaseTrainer:
             # iteration-based training
             self.train_dataloader = inf_loop(self.train_dataloader)
             self.epoch_len = epoch_len
+
+        self.total_steps = self.epoch_len * config.trainer.n_epochs
 
         self.evaluation_dataloaders = {
             k: v for k, v in dataloaders.items() if k != "train"
@@ -125,6 +127,7 @@ class BaseTrainer:
         if hasattr(self.writer, "wandb"):
             # log_freq берем из твоего
             self.writer.wandb.watch(self.model, log="all", log_freq=self.log_step)
+            #self.writer.wandb.watch(self.model, log="all", log_freq=self.log_step // self.epoch_len)
 
         # define metrics
         self.metrics = metrics
@@ -143,6 +146,8 @@ class BaseTrainer:
         for met in self.metrics["inference"]:
             if hasattr(met, "set_encoder"):
                 met.set_encoder(self.model.context_encoder, self.device)
+
+        self.attention_visualizer = self._init_attention_visualizer()
 
         # define checkpoint dir and init everything if required
 
@@ -215,7 +220,9 @@ class BaseTrainer:
         self.is_train = True
         self.model.train()
         self.train_metrics.reset()
-        self.writer.set_step((epoch - 1) * self.epoch_len)
+        # self.writer.set_step((epoch - 1) * self.epoch_len)
+        self.writer.set_step((epoch) * self.epoch_len)
+        # self.writer.set_step((epoch - 1))
         self.writer.add_scalar("epoch", epoch)
         for batch_idx, batch in enumerate(
             tqdm(self.train_dataloader, desc="train", total=self.epoch_len)
@@ -237,8 +244,9 @@ class BaseTrainer:
             self.train_metrics.update("grad_norm", self._get_grad_norm())
 
             # log current results
-            if batch_idx % self.log_step == 0:
-                self.writer.set_step((epoch - 1) * self.epoch_len + batch_idx)
+            if (batch_idx + 1) % self.log_step == 0:
+                self.writer.set_step((epoch - 1) * self.epoch_len + (batch_idx + 1))
+                #self.writer.set_step((epoch - 1))
                 self.logger.debug(
                     "Train Epoch: {} {} Loss: {:.6f}".format(
                         epoch, self._progress(batch_idx), batch["loss"].item()
@@ -304,12 +312,46 @@ class BaseTrainer:
                     epoch=epoch
                 )
             self.writer.set_step(epoch * self.epoch_len, part)
+            #self.writer.set_step(epoch, part)
+
             self._log_scalars(self.evaluation_metrics)
             self._log_batch(
                 batch_idx, batch, part
             )  # log only the last batch during inference
+            if (
+                self.attention_visualizer is not None
+                and self.attention_visualizer.should_log(epoch, part)
+            ):
+                self.attention_visualizer.log(self.model, self.writer, self.device)
 
         return self.evaluation_metrics.result()
+
+    def _init_attention_visualizer(self):
+        """
+        Initialize optional epoch-level attention/PCA image logger.
+        """
+        visualization_config = self.config.get("visualization")
+        if visualization_config is None or not visualization_config.get("enabled", False):
+            return None
+
+        visualizer = instantiate(visualization_config)
+        split = visualizer.split
+        dataloader = self.evaluation_dataloaders.get(split)
+        if dataloader is None:
+            available = ", ".join(self.evaluation_dataloaders.keys())
+            raise ValueError(
+                f"Attention visualizer split '{split}' is not available. "
+                f"Available evaluation splits: {available}"
+            )
+
+        visualizer.setup_from_dataloader(dataloader, device=self.device)
+        self.logger.info(
+            "Attention visualizer fixed %s images from '%s' split: %s",
+            visualizer.num_images,
+            split,
+            visualizer._indices,
+        )
+        return visualizer
 
     def _monitor_performance(self, logs, not_improved_count):
         """

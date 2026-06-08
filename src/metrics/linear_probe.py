@@ -37,7 +37,7 @@ class LinearProbeMetric(BaseMetric):
             labels = batch["fine_label"].to(self.device)
 
             with torch.no_grad():
-                emb = self.encoder(images).mean(dim=1)
+                emb = self.encoder(images)["embeddings"].mean(dim=1)
                 emb_list.append(emb.detach().cpu())
                 labels_list.append(labels.detach().cpu())
 
@@ -72,7 +72,7 @@ class LinearProbeMetric(BaseMetric):
         assert self._is_trained, "Call train_probe() before using metric"
 
         with torch.no_grad():
-            emb = self.encoder(image).mean(dim=1)
+            emb = self.encoder(image)["embeddings"].mean(dim=1)
             logits = self.classifier(emb)
 
         acc = (logits.argmax(1) == fine_label).float().mean().detach().cpu().item()
