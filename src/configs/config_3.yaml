@@ -1,5 +1,5 @@
 defaults:
-  - model: jepa_2
+  - model: jepa_3
   - writer: wandb
   - metrics: metrics_2
   - datasets: cifar10
@@ -9,11 +9,11 @@ defaults:
 optimizer:
   _target_: torch.optim.AdamW
   lr: 1e-4
-  weight_decay: 5e-3
+  weight_decay: 1e-3
 lr_scheduler:
   _target_: torch.optim.lr_scheduler.OneCycleLR
   total_steps: null # само посчитает @!%*& 
-  pct_start: 0.25
+  pct_start: 0.20
   max_lr: 1e-4
   div_factor: 500.0
   final_div_factor: 0.1 
@@ -21,10 +21,10 @@ visualization:
   _target_: src.metrics.AttentionVisualizer
   enabled: True
   split: test
-  num_images: 5
+  num_images: 10
   seed: 42
-  log_every_n_epochs: 1
-  encoder_layers: null
+  log_every_n_epochs: 5
+  encoder_layers: [0, 1, 2, 3, 4, 5, 6, 7]
   predictor_layers: null
   alpha: 0.55
   image_name_prefix: attn

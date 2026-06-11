@@ -160,7 +160,7 @@ class AttentionVisualizer:
         for image_idx, original in enumerate(original_images):
             row = [original]
             for layer_id in layer_ids:
-                heatmap = self._predictor_attention_map(
+                heatmap, target_mask_up = self._predictor_attention_map(
                     attentions[layer_id],
                     image_idx=image_idx,
                     num_pred_masks=num_pred_masks,
@@ -170,7 +170,7 @@ class AttentionVisualizer:
                     grid_size=grid_size,
                     image_size=original.size,
                 )
-                row.append(self._overlay_heatmap(original, heatmap))
+                row.append(self._overlay_heatmap(original, heatmap, target_mask_up))
             rows.append(row)
 
         headers = ["image"] + [f"pred L{layer_id}" for layer_id in layer_ids]
@@ -200,6 +200,16 @@ class AttentionVisualizer:
 
         patch_values = torch.stack(per_mask_maps, dim=0).mean(dim=0)
         patch_values = self._normalize_tensor(patch_values)
+
+        target_mask = torch.ones(num_patches, device=context_mask.device, dtype=torch.float32)
+        target_mask[context_mask.to(torch.long)] = 0.0
+        
+        t_mask_2d = target_mask.reshape(1, 1, grid_size, grid_size)
+        target_mask_up = F.interpolate(
+                t_mask_2d,
+                size=(image_size[1], image_size[0]),
+                mode="nearest").squeeze().detach().cpu().numpy()
+
         heatmap = patch_values.reshape(1, 1, grid_size, grid_size)
         heatmap = F.interpolate(
             heatmap,
@@ -207,7 +217,7 @@ class AttentionVisualizer:
             mode="bilinear",
             align_corners=False,
         )
-        return heatmap.squeeze().detach().cpu().numpy()
+        return heatmap.squeeze().detach().cpu().numpy(), target_mask_up
 
     def _embedding_pca_image(self, emb, image_size):
         num_tokens = emb.shape[0]
@@ -232,14 +242,22 @@ class AttentionVisualizer:
             images.append(image)
         return images
 
-    def _overlay_heatmap(self, image, heatmap):
+    def _overlay_heatmap(self, image, heatmap, target_mask_up=None):
         base = image.convert("RGB")
         heatmap_rgb = self._heatmap_to_rgb(heatmap)
         heatmap_image = Image.fromarray(heatmap_rgb, mode="RGB").resize(
             base.size,
             Image.Resampling.BILINEAR,
         )
-        return Image.blend(base, heatmap_image, self.alpha)
+
+        blended = Image.blend(base, heatmap_image, self.alpha)
+
+        if target_mask_up is not None:
+            blended_np = np.array(blended)
+            blended_np[target_mask_up > 0.5] = [0, 0, 0]
+            return Image.fromarray(blended_np)
+        
+        return blended
 
     def _heatmap_to_rgb(self, heatmap):
         heatmap = np.asarray(heatmap, dtype=np.float32)

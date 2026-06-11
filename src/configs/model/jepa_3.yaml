@@ -1,0 +1,35 @@
+_target_: src.model.models.IJEPAWrapper
+base_momentum: 0.996
+
+context_encoder:
+  _target_: src.model.models.VisionTransformer
+  img_size: [32]
+  patch_size: 4
+  in_chans: 3
+  embed_dim: 288
+  predictor_embed_dim: ${model.predictor.predictor_embed_dim}
+  depth: 8
+  predictor_depth: ${model.predictor.depth}
+  num_heads: 6
+  mlp_ratio: 4.0
+  qkv_bias: True
+  qk_scale: null
+  drop_rate: 0.0
+  attn_drop_rate: 0.0
+  drop_path_rate: 0.0
+  init_std: 0.02
+
+predictor:
+  _target_: src.model.models.VisionTransformerPredictor
+  num_patches: 64
+  embed_dim: ${model.context_encoder.embed_dim}
+  predictor_embed_dim: 196
+  depth: 4
+  num_heads: 4
+  mlp_ratio: 4.0
+  qkv_bias: True
+  qk_scale: null
+  drop_rate: 0.0
+  attn_drop_rate: 0.0
+  drop_path_rate: 0.0
+  init_std: 0.02

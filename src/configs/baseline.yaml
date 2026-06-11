@@ -19,8 +19,8 @@ visualization:
   _target_: src.metrics.AttentionVisualizer
   enabled: True
   split: test
-  num_images: 5
-  seed: 42
+  num_images: 10
+  seed: 1
   log_every_n_epochs: 1
   encoder_layers: null
   predictor_layers: null
