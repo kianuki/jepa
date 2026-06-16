@@ -188,7 +188,7 @@ class Inferencer(BaseTrainer):
         if self.metrics is not None:
             for met in self.metrics["inference"]:
                 if met.name == "LinearProbe":
-                    fig, per_class = met.evaluate_per_class(dataloader)
+                    fig, per_class = met.eval_per_class(dataloader)
                     print(f"Per-class accuracy ({part}):")
                     for k, v in per_class.items():
                         print(f"  {k}: {v:.2%}")

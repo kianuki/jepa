@@ -70,7 +70,7 @@ class Trainer(BaseTrainer):
                     test_loader = self.evaluation_dataloaders.get("test")
 
                     if test_loader != None:
-                        fig, per_class = met.evaluate_per_class_umap(test_loader)
+                        fig, per_class = met.eval_per_class_umap(test_loader)
                         self.writer.add_scalars({
                             f"per_class/acc_class_{i}": v 
                             for i, v in per_class.items()
