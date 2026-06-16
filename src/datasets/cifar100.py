@@ -34,7 +34,10 @@ class Cifar100(BaseDataset):
             img_dir = self._data_dir / "images" / split
             img_dir.mkdir(parents=True, exist_ok=True)
 
-            self.idx_to_name = {i: name for i, name in enumerate(self._dataset.features["fine_label"].names)}
+            if self.n_classes == 100:
+                self.idx_to_name = {i: name for i, name in enumerate(self._dataset.features["fine_label"].names)}
+            else:
+                self.idx_to_name = {i: name for i, name in enumerate(self._dataset.features["flabel"].names)}
 
             index = []
             for idx, entry in enumerate(tqdm(self._dataset)):
