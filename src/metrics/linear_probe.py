@@ -2,6 +2,9 @@ from src.metrics.base_metric import BaseMetric
 from torch import nn
 from tqdm import tqdm
 import torch
+import umap
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 class LinearProbeMetric(BaseMetric):
@@ -77,3 +80,46 @@ class LinearProbeMetric(BaseMetric):
 
         acc = (logits.argmax(1) == fine_label).float().mean().detach().cpu().item()
         return acc
+    
+    def eval_per_class_umap(self, test_loader):
+        assert self._is_trained, "Call train_probe() before using metric"
+        
+        all_preds = []
+        all_labels = []
+        all_embs = []
+        
+        self.encoder.eval()
+        with torch.no_grad():
+            for batch in test_loader:
+                images = batch["image"].to(self.device)
+                labels = batch["fine_label"].to(self.device)
+                
+                emb = self.encoder(images)["embeddings"].mean(dim=1)
+                preds = self.classifier(emb).argmax(1)
+                
+                all_embs.append(emb.cpu())
+                all_preds.append(preds.cpu())
+                all_labels.append(labels.cpu())
+        
+        embs = torch.cat(all_embs)
+        all_preds = torch.cat(all_preds)
+        all_labels = torch.cat(all_labels)
+        
+        res = {}
+        for class_idx in range(self.num_classes):
+            mask = (all_labels == class_idx)
+            if mask.sum() > 0:
+                res[f'acc_class_{class_idx}'] = (all_preds[mask] == all_labels[mask]).float().mean().item()
+
+        reducer = umap.UMAP(n_components=2)
+        reduced = reducer.fit_transform(embs)
+
+        fig, ax = plt.subplots(figsize=(8, 8))
+        scatter = ax.scatter(
+            reduced[:, 0], reduced[:, 1],
+            c=all_labels, cmap="tab10",
+            s=2, alpha=0.5
+        )
+        plt.colorbar(scatter, ax=ax, ticks=range(self.num_classes))
+        ax.set_title("UMAP of encoder embeddings")
+        return fig, res

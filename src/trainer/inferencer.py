@@ -185,4 +185,17 @@ class Inferencer(BaseTrainer):
                     metrics=self.evaluation_metrics,
                 )
 
+        if self.metrics is not None:
+            for met in self.metrics["inference"]:
+                if met.name == "LinearProbe":
+                    fig, per_class = met.evaluate_per_class(dataloader)
+                    print(f"Per-class accuracy ({part}):")
+                    for k, v in per_class.items():
+                        print(f"  {k}: {v:.2%}")
+
+                    if self.save_path is not None:
+                        fig.savefig(self.save_path / part / "umap.png", dpi=150, bbox_inches="tight")
+                        print(f"UMAP saved to {self.save_path / part / 'umap.png'}")
+
+
         return self.evaluation_metrics.result()
