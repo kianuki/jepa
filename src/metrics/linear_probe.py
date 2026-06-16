@@ -18,6 +18,8 @@ class LinearProbeMetric(BaseMetric):
         self.lp_batch_size = lp_batch_size
         self._is_trained = False
 
+        self.idx_to_name = None
+
     def set_encoder(self, encoder, device):
         self.encoder = encoder.to(device)
         self.device = device
@@ -120,13 +122,22 @@ class LinearProbeMetric(BaseMetric):
             c=all_labels, cmap="tab10",
             s=2, alpha=0.5
         )
-        plt.colorbar(scatter, ax=ax, ticks=range(self.num_classes))
+        cbar = plt.colorbar(scatter, ax=ax, ticks=range(self.num_classes))
+        if self.idx_to_name is not None:
+            cbar.ax.set_yticklabels([self.idx_to_name[i] for i in range(self.num_classes)], fontsize=7)
         ax.set_title("UMAP of encoder embeddings")
         return fig, res
+    
 
     def plot_per_class_bar(self, per_class):
         classes = list(per_class.keys())
         values = list(per_class.values())
+        indices = [int(c.replace("acc_class_", "")) for c in classes]
+        
+        if self.idx_to_name is not None:
+            labels = [self.idx_to_name[i] for i in indices]
+        else:
+            labels = [str(i) for i in indices]
         
         fig, ax = plt.subplots(figsize=(12, 4))
         bars = ax.bar(range(len(classes)), values)
@@ -136,7 +147,7 @@ class LinearProbeMetric(BaseMetric):
                     f"{val:.0%}", ha="center", va="bottom", fontsize=8)
         
         ax.set_xticks(range(len(classes)))
-        ax.set_xticklabels([c.replace("acc_class_", "") for c in classes])
+        ax.set_xticklabels(labels, rotation=45, ha="right")
         ax.set_ylim(0, 1.1)
         ax.set_ylabel("Accuracy")
         ax.set_title("Per-class accuracy")

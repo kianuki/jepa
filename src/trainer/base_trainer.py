@@ -143,9 +143,12 @@ class BaseTrainer:
             writer=self.writer,
         )
 
+        test_dataset = dataloaders["test"].dataset
         for met in self.metrics["inference"]:
             if hasattr(met, "set_encoder"):
                 met.set_encoder(self.model.context_encoder, self.device)
+            if hasattr(met, "idx_to_name"):
+                met.idx_to_name = test_dataset.idx_to_name
 
         self.attention_visualizer = self._init_attention_visualizer()
 

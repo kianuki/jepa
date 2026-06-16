@@ -21,6 +21,7 @@ class Cifar100(BaseDataset):
             split=split,
         )
         self.n_classes = n_classes
+        self.idx_to_name = None
         index = self._get_or_load_index(split)
         super().__init__(index, *args, **kwargs)
 
@@ -32,7 +33,9 @@ class Cifar100(BaseDataset):
         else:
             img_dir = self._data_dir / "images" / split
             img_dir.mkdir(parents=True, exist_ok=True)
-            
+
+            self.idx_to_name = {i: name for i, name in enumerate(self._dataset.features["fine_label"].names)}
+
             index = []
             for idx, entry in enumerate(tqdm(self._dataset)):
                 img_path = img_dir / f"{idx}.png"
@@ -42,7 +45,7 @@ class Cifar100(BaseDataset):
                 if self.n_classes == 100:
                     index.append({
                         "path": str(img_path.absolute()),
-                        "fine_label": entry["fine_label"],
+                        "fine_label": entry["fine_label"]
                     })
                 else:
                     index.append({
