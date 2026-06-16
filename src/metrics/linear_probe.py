@@ -129,14 +129,14 @@ class LinearProbeMetric(BaseMetric):
         values = list(per_class.values())
         
         fig, ax = plt.subplots(figsize=(12, 4))
-        bars = ax.bar(range(len(classes)), values, color="steelblue")
+        bars = ax.bar(range(len(classes)), values)
         
         for bar, val in zip(bars, values):
             ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.01,
                     f"{val:.0%}", ha="center", va="bottom", fontsize=8)
         
         ax.set_xticks(range(len(classes)))
-        ax.set_xticklabels([c.replace("acc_class_", "") for c in classes], rotation=45)
+        ax.set_xticklabels([c.replace("acc_class_", "") for c in classes])
         ax.set_ylim(0, 1.1)
         ax.set_ylabel("Accuracy")
         ax.set_title("Per-class accuracy")
