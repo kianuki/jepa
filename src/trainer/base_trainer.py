@@ -279,6 +279,17 @@ class BaseTrainer:
                 if hasattr(met, "train_probe"):
                     met.train_probe(self.train_dataloader)
 
+                if hasattr(met, "eval_per_class_umap"):
+                    test_loader = self.evaluation_dataloaders.get("test")
+                    if test_loader is not None:
+                        fig, per_class = met.eval_per_class_umap(test_loader)
+                        self.writer.set_step(epoch * self.epoch_len, "test")
+                        self.writer.add_scalars({
+                            f"per_class/acc_class_{i}": v
+                            for i, v in per_class.items()
+                        })
+                        self.writer.add_image("umap", fig)
+
         # Run val/test
         for part, dataloader in self.evaluation_dataloaders.items():
             val_logs = self._evaluation_epoch(epoch, part, dataloader)

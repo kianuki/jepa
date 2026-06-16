@@ -66,17 +66,6 @@ class Trainer(BaseTrainer):
             if met.name == "LinearProbe":
                 if epoch % self.n_epoch_probe == 0:
                     metrics.update(met.name, met(**batch))
-
-                    test_loader = self.evaluation_dataloaders.get("test")
-
-                    if test_loader != None:
-                        fig, per_class = met.eval_per_class_umap(test_loader)
-                        self.writer.add_scalars({
-                            f"per_class/acc_class_{i}": v 
-                            for i, v in per_class.items()
-                        })
-
-                        self.writer.add_image("umap", fig)
             else:
                 metrics.update(met.name, met(**batch))
 
