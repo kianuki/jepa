@@ -109,7 +109,7 @@ class LinearProbeMetric(BaseMetric):
         for class_idx in range(self.num_classes):
             mask = (all_labels == class_idx)
             if mask.sum() > 0:
-                res[f'acc_class_{class_idx}'] = (all_preds[mask] == all_labels[mask]).float().mean().item()
+                res[f'{class_idx}'] = (all_preds[mask] == all_labels[mask]).float().mean().item()
 
         reducer = umap.UMAP(n_components=2)
         reduced = reducer.fit_transform(embs)
@@ -123,3 +123,25 @@ class LinearProbeMetric(BaseMetric):
         plt.colorbar(scatter, ax=ax, ticks=range(self.num_classes))
         ax.set_title("UMAP of encoder embeddings")
         return fig, res
+
+    def plot_per_class_bar(self, per_class):
+        classes = list(per_class.keys())
+        values = list(per_class.values())
+        
+        fig, ax = plt.subplots(figsize=(12, 4))
+        bars = ax.bar(range(len(classes)), values, color="steelblue")
+        
+        for bar, val in zip(bars, values):
+            ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.01,
+                    f"{val:.0%}", ha="center", va="bottom", fontsize=8)
+        
+        ax.set_xticks(range(len(classes)))
+        ax.set_xticklabels([c.replace("acc_class_", "") for c in classes], rotation=45)
+        ax.set_ylim(0, 1.1)
+        ax.set_ylabel("Accuracy")
+        ax.set_title("Per-class accuracy")
+        ax.axhline(y=sum(values)/len(values), color="red", linestyle="--", label="mean")
+        ax.legend()
+        
+        plt.tight_layout()
+        return fig

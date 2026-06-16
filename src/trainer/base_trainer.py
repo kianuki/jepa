@@ -289,6 +289,8 @@ class BaseTrainer:
                             for i, v in per_class.items()
                         })
                         self.writer.add_image("umap", fig)
+                        fig_bar = met.plot_per_class_bar(per_class)
+                        self.writer.add_image("per_class_bar", fig_bar)
 
         # Run val/test
         for part, dataloader in self.evaluation_dataloaders.items():
